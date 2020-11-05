@@ -1,0 +1,32 @@
+<mat-toolbar>
+    <span>{{titulo}}</span>
+</mat-toolbar>
+
+<div class="container-app">
+    <form #productoForm="ngForm" (ngSubmit)="onSubmit(productoForm)" *ngIf="edicion == false || producto">
+        <mat-form-field>
+            <input matInput type="text" name="nombre" #nombre="ngModel" [(ngModel)]="producto.nombre"
+                placeholder="Nombre" minlength="2" required>
+        </mat-form-field>
+
+        <mat-form-field>
+            <input matInput type="text" name="marca" #marca="ngModel" [(ngModel)]="producto.marca" 
+                placeholder="Marca" minlength="2" required>
+        </mat-form-field>
+
+        <mat-form-field>
+            <input matInput type="number" name="precio" #precio="ngModel" [(ngModel)]="producto.precio"
+                placeholder="Precio" required>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="productoForm.invalid">
+            <mat-icon>done</mat-icon>
+            <span>Aceptar</span>
+        </button>
+
+        <button mat-raised-button color="warn" type="button" [routerLink]="['/productos']" style="margin-left:10px;">
+            <mat-icon>close</mat-icon>
+            <span>Cancelar</span>
+        </button>
+    </form>
+</div>

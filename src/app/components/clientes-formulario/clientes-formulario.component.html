@@ -1,0 +1,27 @@
+<mat-toolbar>
+    <span>{{titulo}}</span>
+</mat-toolbar>
+
+<div class="container-app">
+    <form #clienteForm="ngForm" (ngSubmit)="onSubmit(clienteForm)" *ngIf="edicion == false || persona">
+        <mat-form-field>
+            <input matInput type="text" name="nombres" #nombres="ngModel" [(ngModel)]="persona.nombres"
+                placeholder="Nombres" minlength="3" required>
+        </mat-form-field>
+
+        <mat-form-field>
+            <input matInput type="text" name="apellidos" #apellidos="ngModel" [(ngModel)]="persona.apellidos"
+                placeholder="Apellidos" minlength="3" required>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="clienteForm.invalid">
+            <mat-icon>done</mat-icon>
+            <span>Aceptar</span>
+        </button>
+
+        <button mat-raised-button color="warn" type="button" [routerLink]="['/clientes']" style="margin-left:10px;">
+            <mat-icon>close</mat-icon>
+            <span>Cancelar</span>
+        </button>
+    </form>
+</div>

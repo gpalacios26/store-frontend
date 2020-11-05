@@ -1,0 +1,82 @@
+<mat-toolbar>
+    <span>Agregar Venta</span>
+</mat-toolbar>
+
+<div class="container-app" *ngIf="personas && productos">
+    <form #ventaForm="ngForm" [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div formGroupName="venta">
+            <table style="width:100%;">
+                <tbody>
+                    <tr>
+                        <td>
+                            <mat-form-field appearance="fill">
+                                <input matInput [matDatepicker]="picker" formControlName="fecha" placeholder="Fecha">
+                                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                                <mat-datepicker #picker></mat-datepicker>
+                            </mat-form-field>
+                        </td>
+                        <td>
+                            <mat-form-field appearance="fill" formGroupName="persona">
+                                <mat-select formControlName="idPersona" placeholder="Cliente">
+                                    <mat-option *ngFor="let persona of personas" value={{persona.idPersona}}>{{persona.nombres + ' ' + persona.apellidos}}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </td>
+                        <td>
+                            <mat-form-field appearance="fill">
+                                <input matInput type="number" formControlName="importe" placeholder="Importe" readonly>
+                            </mat-form-field>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div formArrayName="list_detalle_venta" style="margin-bottom:100px;">
+            <table style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Borrar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let control of list_detalle_venta.controls; let i = index;" [formGroupName]="i">
+                        <td>
+                            <mat-form-field appearance="fill" formGroupName="producto">
+                                <mat-select formControlName="idProducto" placeholder="Producto" (selectionChange)="seleccionarProducto(i)">
+                                    <mat-option *ngFor="let prod of productos" value={{prod.idProducto}}>{{prod.nombre + ' ' + prod.marca}}
+                                        <span *ngIf="prod.idProducto"> - Precio: {{prod.precio | currency: 'USD'}}</span>
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </td>
+                        <td>
+                            <mat-form-field appearance="fill">
+                                <input matInput type="number" formControlName="cantidad" placeholder="Cantidad" (keyup)="calcularImporte()">
+                            </mat-form-field>
+                        </td>
+                        <td>
+                            <button mat-fab color="warn" type="button" (click)="borrarItem(i)" [disabled]="i==0">
+                                <mat-icon>delete</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button mat-raised-button color="primary" type="button" (click)="agregarItem()" style="float:right;margin-top:10px;">
+                <span>+ Agregar</span>
+            </button>
+        </div>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="ventaForm.invalid">
+            <mat-icon>done</mat-icon>
+            <span>Aceptar</span>
+        </button>
+
+        <button mat-raised-button color="warn" type="button" [routerLink]="['/ventas']" style="margin-left:10px;">
+            <mat-icon>close</mat-icon>
+            <span>Cancelar</span>
+        </button>
+    </form>
+</div>
