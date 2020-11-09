@@ -1,10 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatSort, Sort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Producto } from '../../models/producto';
 import { ProductoService } from '../../services/producto.service';
-import Swal from 'sweetalert2';
+import { MatDialog } from '@angular/material/dialog';
+import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component';
 
 @Component({
   selector: 'app-productos',
@@ -17,11 +19,13 @@ export class ProductosComponent implements OnInit {
   public displayedColumns = ['idProducto', 'nombre', 'marca', 'precio', 'acciones'];
   public dataSource: MatTableDataSource<Producto>;
 
+  @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(
     private productoService: ProductoService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {
@@ -29,10 +33,16 @@ export class ProductosComponent implements OnInit {
   }
 
   getProductos() {
-    this.productoService.getProductos().subscribe(
+    this.productoService.listar().subscribe(
       response => {
         this.dataSource = new MatTableDataSource(response);
+        this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator;
+
+        const sortState: Sort = { active: 'idProducto', direction: 'desc' };
+        this.sort.active = sortState.active;
+        this.sort.direction = sortState.direction;
+        this.sort.sortChange.emit(sortState);
       },
       error => {
         console.log(error);
@@ -41,21 +51,21 @@ export class ProductosComponent implements OnInit {
     );
   }
 
-  delete(id) {
-    Swal.fire({
-      title: 'Alerta',
-      text: 'Deseas eliminar el registro seleccionado?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'ACEPTAR',
-      cancelButtonText: 'CANCELAR'
-    }).then((result) => {
-      if (result.value) {
-        this.productoService.deleteProducto(id).subscribe(
+  filtrar(valor: string) {
+    this.dataSource.filter = valor.trim().toLowerCase();
+  }
+
+  eliminar(id: number) {
+    const confirmDialog = this.dialog.open(DialogConfirmComponent, {
+      data: {
+        titulo: 'Alerta',
+        mensaje: 'Deseas eliminar el registro seleccionado?'
+      }
+    });
+    confirmDialog.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.productoService.eliminar(id).subscribe(
           response => {
-            console.log(response);
             this.getProductos();
             this.snackBar.open('El producto se ha eliminado correctamente', 'AVISO', { duration: 2000 });
           },

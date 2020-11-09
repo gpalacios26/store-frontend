@@ -8,7 +8,7 @@ import { MomentModule } from 'angular2-moment';
 import { routing, appRoutingProviders } from './app.routing';
 
 // Angular Material
-import { MaterialModule } from './material';
+import { MaterialModule } from './material/material.module';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './components/home/home.component';
@@ -18,6 +18,7 @@ import { VentasComponent } from './components/ventas/ventas.component';
 import { ClientesFormularioComponent } from './components/clientes-formulario/clientes-formulario.component';
 import { ProductosFormularioComponent } from './components/productos-formulario/productos-formulario.component';
 import { VentasFormularioComponent } from './components/ventas-formulario/ventas-formulario.component';
+import { DialogConfirmComponent } from './components/dialog-confirm/dialog-confirm.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { VentasFormularioComponent } from './components/ventas-formulario/ventas
     VentasComponent,
     ClientesFormularioComponent,
     ProductosFormularioComponent,
-    VentasFormularioComponent
+    VentasFormularioComponent,
+    DialogConfirmComponent
   ],
   imports: [
     BrowserModule,

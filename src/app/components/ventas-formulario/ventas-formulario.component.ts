@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Persona } from '../../models/persona';
 import { PersonaService } from '../../services/persona.service';
 import { Producto } from '../../models/producto';
 import { ProductoService } from '../../services/producto.service';
 import { Venta } from '../../models/venta';
-import { DetalleVenta } from '../../models/detalle-venta';
 import { VentaService } from '../../services/venta.service';
 
 @Component({
@@ -22,12 +21,12 @@ export class VentasFormularioComponent implements OnInit {
   public personas: Persona[];
   public productos: Producto[];
   public venta: Venta;
-  public detalleVenta: DetalleVenta[];
+  public maxFecha: Date = new Date();
   public importe: number;
+  public breakpoint: number;
 
   constructor(
     private fb: FormBuilder,
-    private route: ActivatedRoute,
     private router: Router,
     private personaService: PersonaService,
     private productoService: ProductoService,
@@ -36,11 +35,16 @@ export class VentasFormularioComponent implements OnInit {
   ) {
     this.crearFormulario();
     this.importe = 0;
+    this.breakpoint = (window.innerWidth <= 640) ? 1 : 3;
   }
 
   ngOnInit() {
     this.getPersonas();
     this.getProductos();
+  }
+
+  onResize(event) {
+    this.breakpoint = (event.target.innerWidth <= 640) ? 1 : 3;
   }
 
   get list_detalle_venta() {
@@ -68,7 +72,7 @@ export class VentasFormularioComponent implements OnInit {
       producto: this.fb.group({
         idProducto: ['', Validators.required]
       }),
-      cantidad: ['', Validators.required]
+      cantidad: ['', [Validators.required, Validators.min(1)]]
     });
   }
 
@@ -129,7 +133,7 @@ export class VentasFormularioComponent implements OnInit {
   }
 
   getPersonas() {
-    this.personaService.getPersonas().subscribe(
+    this.personaService.listar().subscribe(
       response => {
         this.personas = response;
 
@@ -148,7 +152,7 @@ export class VentasFormularioComponent implements OnInit {
   }
 
   getProductos() {
-    this.productoService.getProductos().subscribe(
+    this.productoService.listar().subscribe(
       response => {
         this.productos = response;
 
@@ -167,10 +171,11 @@ export class VentasFormularioComponent implements OnInit {
     );
   }
 
-  onSubmit() {
-    this.ventaService.createVenta(this.form.value).subscribe(
+  guardar() {
+    this.ventaService.registrarTransaccional(this.form.value).subscribe(
       response => {
         this.venta = response;
+        this.router.navigate(['ventas']);
         this.snackBar.open('Venta registrada correctamente', 'AVISO', { duration: 2000 });
       },
       error => {
@@ -178,8 +183,6 @@ export class VentasFormularioComponent implements OnInit {
         this.snackBar.open('Ocurrio un error, vuelva a intentarlo', 'AVISO', { duration: 2000 });
       }
     );
-
-    this.router.navigate(['ventas']);
   }
 
 }

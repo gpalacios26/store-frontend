@@ -3,7 +3,7 @@
 </mat-toolbar>
 
 <div class="container-app">
-    <form #productoForm="ngForm" (ngSubmit)="onSubmit(productoForm)" *ngIf="edicion == false || producto">
+    <form autocomplete="off" #productoForm="ngForm" (ngSubmit)="guardar()" *ngIf="edicion == false || producto">
         <mat-form-field>
             <input matInput type="text" name="nombre" #nombre="ngModel" [(ngModel)]="producto.nombre"
                 placeholder="Nombre" minlength="2" required>

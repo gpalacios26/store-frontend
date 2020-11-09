@@ -3,36 +3,37 @@
 </mat-toolbar>
 
 <div class="container-app" *ngIf="personas && productos">
-    <form #ventaForm="ngForm" [formGroup]="form" (ngSubmit)="onSubmit()">
+    <form autocomplete="off" #ventaForm="ngForm" [formGroup]="form" (ngSubmit)="guardar()">
         <div formGroupName="venta">
-            <table style="width:100%;">
-                <tbody>
-                    <tr>
-                        <td>
-                            <mat-form-field appearance="fill">
-                                <input matInput [matDatepicker]="picker" formControlName="fecha" placeholder="Fecha">
-                                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                                <mat-datepicker #picker></mat-datepicker>
-                            </mat-form-field>
-                        </td>
-                        <td>
-                            <mat-form-field appearance="fill" formGroupName="persona">
-                                <mat-select formControlName="idPersona" placeholder="Cliente">
-                                    <mat-option *ngFor="let persona of personas" value={{persona.idPersona}}>{{persona.nombres + ' ' + persona.apellidos}}</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                        </td>
-                        <td>
-                            <mat-form-field appearance="fill">
-                                <input matInput type="number" formControlName="importe" placeholder="Importe" readonly>
-                            </mat-form-field>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <mat-grid-list [cols]="breakpoint" rowHeight="6:1" (window:resize)="onResize($event)">
+                <mat-grid-tile>
+                    <mat-form-field appearance="fill">
+                        <input matInput [matDatepicker]="picker" [max]="maxFecha" formControlName="fecha"
+                            placeholder="Fecha" readonly>
+                        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                        <mat-datepicker #picker></mat-datepicker>
+                    </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile>
+                    <mat-form-field appearance="fill" formGroupName="persona">
+                        <mat-select formControlName="idPersona" placeholder="Cliente">
+                            <mat-option *ngFor="let persona of personas" value={{persona.idPersona}}>
+                                {{persona.nombres + ' ' + persona.apellidos}}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </mat-grid-tile>
+                <mat-grid-tile>
+                    <mat-form-field appearance="fill">
+                        <input matInput type="number" formControlName="importe" placeholder="Importe" readonly>
+                    </mat-form-field>
+                </mat-grid-tile>
+            </mat-grid-list>
         </div>
-        <div formArrayName="list_detalle_venta" style="margin-bottom:100px;">
-            <table style="width:100%;">
+        <div formArrayName="list_detalle_venta" style="margin-bottom:60px;">
+            <button mat-raised-button color="primary" type="button" class="btnAgregarProducto" (click)="agregarItem()">
+                <span>+ Agregar Producto</span>
+            </button>
+            <table style="width:100%;" *ngIf="list_detalle_venta.controls.length > 0">
                 <thead>
                     <tr>
                         <th>Producto</th>
@@ -44,19 +45,24 @@
                     <tr *ngFor="let control of list_detalle_venta.controls; let i = index;" [formGroupName]="i">
                         <td>
                             <mat-form-field appearance="fill" formGroupName="producto">
-                                <mat-select formControlName="idProducto" placeholder="Producto" (selectionChange)="seleccionarProducto(i)">
-                                    <mat-option *ngFor="let prod of productos" value={{prod.idProducto}}>{{prod.nombre + ' ' + prod.marca}}
-                                        <span *ngIf="prod.idProducto"> - Precio: {{prod.precio | currency: 'USD'}}</span>
+                                <mat-select formControlName="idProducto" placeholder="Producto"
+                                    (selectionChange)="seleccionarProducto(i)">
+                                    <mat-option *ngFor="let prod of productos" value={{prod.idProducto}}>
+                                        {{prod.nombre + ' ' + prod.marca}}
+                                        <span *ngIf="prod.idProducto">
+                                            - Precio: {{prod.precio | currency: 'USD'}}
+                                        </span>
                                     </mat-option>
                                 </mat-select>
                             </mat-form-field>
                         </td>
                         <td>
                             <mat-form-field appearance="fill">
-                                <input matInput type="number" formControlName="cantidad" placeholder="Cantidad" (keyup)="calcularImporte()">
+                                <input matInput type="number" formControlName="cantidad" placeholder="Cantidad"
+                                    (keyup)="calcularImporte()">
                             </mat-form-field>
                         </td>
-                        <td>
+                        <td style="text-align:center;">
                             <button mat-fab color="warn" type="button" (click)="borrarItem(i)" [disabled]="i==0">
                                 <mat-icon>delete</mat-icon>
                             </button>
@@ -64,9 +70,6 @@
                     </tr>
                 </tbody>
             </table>
-            <button mat-raised-button color="primary" type="button" (click)="agregarItem()" style="float:right;margin-top:10px;">
-                <span>+ Agregar</span>
-            </button>
         </div>
 
         <button mat-raised-button color="primary" type="submit" [disabled]="ventaForm.invalid">

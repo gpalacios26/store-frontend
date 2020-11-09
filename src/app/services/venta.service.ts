@@ -7,6 +7,7 @@ import { GLOBAL } from './global';
 export class VentaService {
 
     public url: string;
+    private headers = new HttpHeaders().set('Content-type', 'application/json');
 
     constructor(
         public _http: HttpClient
@@ -14,14 +15,12 @@ export class VentaService {
         this.url = GLOBAL.url;
     }
 
-    getVentas(): Observable<any> {
-        let headers = new HttpHeaders().set('Content-type', 'application/json');
-        return this._http.get(this.url + 'ventas', { headers: headers });
+    listar(): Observable<any> {
+        return this._http.get(`${this.url}ventas`, { headers: this.headers });
     }
 
-    createVenta(ventaDTO): Observable<any> {
+    registrarTransaccional(ventaDTO): Observable<any> {
         let params = JSON.stringify(ventaDTO);
-        let headers = new HttpHeaders().set('Content-type', 'application/json');
-        return this._http.post(this.url + 'ventas', params, { headers: headers });
+        return this._http.post(`${this.url}ventas`, params, { headers: this.headers });
     }
 }

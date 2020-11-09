@@ -3,6 +3,7 @@ import { ActivatedRoute, Params, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Producto } from '../../models/producto';
 import { ProductoService } from '../../services/producto.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-productos-formulario',
@@ -27,12 +28,12 @@ export class ProductosFormularioComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.route.params.subscribe(params => {
+    this.route.params.subscribe((params: Params) => {
       if (params['id'] != null) {
         this.id = params['id'];
         this.edicion = true;
-        this.getProducto();
         this.titulo = "Editar Producto";
+        this.getProducto();
       } else {
         this.edicion = false;
         this.titulo = "Agregar Producto";
@@ -41,7 +42,7 @@ export class ProductosFormularioComponent implements OnInit {
   }
 
   getProducto() {
-    this.productoService.getProducto(this.id).subscribe(
+    this.productoService.listarPorId(this.id).subscribe(
       response => {
         this.producto = response;
       },
@@ -53,32 +54,29 @@ export class ProductosFormularioComponent implements OnInit {
     );
   }
 
-  onSubmit(form) {
+  guardar() {
+    let peticion: Observable<any>;
+    let mensaje: string;
+
     if (this.edicion) {
-      this.productoService.updateProducto(this.producto).subscribe(
-        response => {
-          this.producto = response;
-          this.snackBar.open('Producto actualizado correctamente', 'AVISO', { duration: 2000 });
-        },
-        error => {
-          console.log(error);
-          this.snackBar.open('Ocurrio un error, vuelva a intentarlo', 'AVISO', { duration: 2000 });
-        }
-      );
+      peticion = this.productoService.modificar(this.producto);
+      mensaje = 'Producto actualizado correctamente';
     } else {
-      this.productoService.createProducto(this.producto).subscribe(
-        response => {
-          this.producto = response;
-          this.snackBar.open('Producto registrado correctamente', 'AVISO', { duration: 2000 });
-        },
-        error => {
-          console.log(error);
-          this.snackBar.open('Ocurrio un error, vuelva a intentarlo', 'AVISO', { duration: 2000 });
-        }
-      );
+      peticion = this.productoService.registrar(this.producto);
+      mensaje = 'Producto registrado correctamente';
     }
 
-    this.router.navigate(['productos']);
+    peticion.subscribe(
+      response => {
+        this.producto = response;
+        this.router.navigate(['productos']);
+        this.snackBar.open(mensaje, 'AVISO', { duration: 2000 });
+      },
+      error => {
+        console.log(error);
+        this.snackBar.open('Ocurrio un error, vuelva a intentarlo', 'AVISO', { duration: 2000 });
+      }
+    );
   }
 
 }
